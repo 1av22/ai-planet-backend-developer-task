@@ -1,0 +1,39 @@
+# docker-compose.yaml
+version: "3.8"
+services:
+  db:
+    image: postgres:latest
+    container_name: ai_planet_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ai_planet_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - mynetwork
+
+  web:
+    build:
+      context: ./backend
+    volumes:
+      - ./backend:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - mynetwork
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - ALGORITHM=${ALGORITHM}
+      - DATABASE_URL=${DATABASE_URL}
+
+networks:
+  mynetwork:
+
+volumes:
+  postgres_data:
+    driver: local
